@@ -6,7 +6,9 @@ require('dotenv').config();
 const port = process.env.PORT || 5000;
 
 // middleware
-app.use(cors());
+app.use(cors({
+    origin: ["http://localhost:5173"]
+}));
 app.use(express.json());
 
 
@@ -38,7 +40,19 @@ async function run() {
 
 
         //post the new user data to database
-        // app.post("/newuser")
+        app.post("/newuser", async (req, res) => {
+            const newUserInfo = req.body;
+            // checking if the user already exists in the database
+            const query = { email: newUserInfo.email }
+            const userExists = await userCollection.findOne(query)
+            if (userExists) {
+                return res.send({ message: "User already exists", insertedId: null });
+            }
+            else {
+                const result = await userCollection.insertOne(newUserInfo);
+                res.send(result);
+            }
+        })
 
 
 
@@ -50,7 +64,7 @@ async function run() {
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
         // Ensures that the client will close when you finish/error
-        await client.close();
+        // await client.close();
     }
 }
 run().catch(console.dir);
