@@ -7,7 +7,7 @@ const port = process.env.PORT || 5000;
 
 // middleware
 app.use(cors({
-    origin: ["http://localhost:5173"]
+    origin: ["http://localhost:5173", "https://task-magnet-hub.web.app"]
 }));
 app.use(express.json());
 
@@ -89,6 +89,27 @@ async function run() {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await allTaskCollection.findOne(query);
+            res.send(result);
+        })
+
+
+
+        // update a task
+        app.put("/updatetask/:id", async (req, res) => {
+            const id = req.params.id;
+            const updatedInfo = req.body;
+            const filter = { _id: new ObjectId(id) };
+            const options = { upsert: true };
+            const updateTask = {
+                $set: {
+                    title: updatedInfo.title,
+                    description: updatedInfo.description,
+                    taskPriority: updatedInfo.taskPriority,
+                    taskDeadlineDate: updatedInfo.taskDeadlineDate,
+                    taskUpdatingDate: updatedInfo.taskUpdatingDate,
+                }
+            };
+            const result = await allTaskCollection.updateOne(filter, updateTask, options);
             res.send(result);
         })
 
