@@ -18,7 +18,6 @@ const dbPassword = process.env.DB_PASS;
 
 
 
-
 const uri = `mongodb+srv://${dbUser}:${dbPassword}@cluster0.xeklkbf.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -37,6 +36,7 @@ async function run() {
 
         // database and collection
         const userCollection = client.db("taskMagnetDB").collection("allUsers")
+        const allTaskCollection = client.db("taskMagnetDB").collection("allTasks")
 
 
         //post the new user data to database
@@ -52,6 +52,25 @@ async function run() {
                 const result = await userCollection.insertOne(newUserInfo);
                 res.send(result);
             }
+        })
+
+
+
+        // post new task to the database
+        app.post("/newtask", async (req, res) => {
+            const newTaskInfo = req.body;
+            const result = await allTaskCollection.insertOne(newTaskInfo);
+            res.send(result);
+        })
+
+
+
+        // get the current user
+        app.get("/currentuser", async (req, res) => {
+            const email = req.query;
+            const query = { email: email.email };
+            const result = await userCollection.findOne(query);
+            res.send(result);
         })
 
 
