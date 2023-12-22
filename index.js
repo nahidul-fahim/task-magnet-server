@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 const port = process.env.PORT || 5000;
 
@@ -70,6 +70,35 @@ async function run() {
             const email = req.query;
             const query = { email: email.email };
             const result = await userCollection.findOne(query);
+            res.send(result);
+        })
+
+
+        // get all the tasks for signed in user
+        app.get("/alltasks/:email", async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email.email };
+            const result = await allTaskCollection.find(query).toArray();
+            res.send(result);
+        })
+
+
+
+        // get a single task
+        app.get("/singletask/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await allTaskCollection.findOne(query);
+            res.send(result);
+        })
+
+
+
+        // delete a task
+        app.delete("/deletetask/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await allTaskCollection.deleteOne(query);
             res.send(result);
         })
 
