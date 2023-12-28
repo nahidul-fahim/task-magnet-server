@@ -7,7 +7,7 @@ const port = process.env.PORT || 5000;
 
 // middleware
 app.use(cors({
-    origin: ["http://localhost:5173", "https://task-magnet-hub.web.app"]
+    origin: ["https://task-magnet-hub.web.app", "http://localhost:5173"]
 }));
 app.use(express.json());
 
@@ -77,7 +77,7 @@ async function run() {
         // get all the tasks for signed in user
         app.get("/alltasks/:email", async (req, res) => {
             const email = req.params.email;
-            const query = { email: email.email };
+            const query = { userEmail: email };
             const result = await allTaskCollection.find(query).toArray();
             res.send(result);
         })
@@ -110,6 +110,23 @@ async function run() {
                 }
             };
             const result = await allTaskCollection.updateOne(filter, updateTask, options);
+            res.send(result);
+        })
+
+
+
+        // update a task
+        app.put("/updatetaskstatus/:id", async (req, res) => {
+            const id = req.params.id;
+            const updatedStatusInfo = req.body;
+            const filter = { _id: new ObjectId(id) };
+            const options = { upsert: true };
+            const updateStatus = {
+                $set: {
+                    taskStatus: updatedStatusInfo.taskStatus,
+                }
+            };
+            const result = await allTaskCollection.updateOne(filter, updateStatus, options);
             res.send(result);
         })
 
